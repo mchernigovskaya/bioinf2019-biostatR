@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+  <head>
+    <title>Статистика в R</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Мария Черниговская" />
+    <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
+    <link href="libs/remark-css-0.0.1/default-fonts.css" rel="stylesheet" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Статистика в R
+## Истории о том, как нужно и не нужно анализировать данные
+### Мария Черниговская
+### 2 августа 2019
+
+---
+
+
+layout: true
+
+---
+
+# Зачем изучать статистику?
+
+.center[![](./img/HolyShit.png)]
+
+--
+
+###.center[Чтобы отвечать на интересные вопросы с помощью данных!]
+
+
+---
+
+background-image: url(./img/SampleSpace.svg)
+background-size: cover
+class: center
+
+---
+
+# Генеральная совокупность
+### Множество всех пациентов на Земле, которые больны раком крови
+
+.pull-left[
+
+# Примеры выборок
+### &gt; Случайно выбрали 1% больных
+### &gt; Все больные в случайной больнице
+### &gt; Случайно выбираем по 100 больных из каждой группы крови
+### &gt; Все больные люди старше 80 лет
+
+]
+.pull-right[
+
+.middle[![](./img/Sample.gif)]
+
+]
+
+---
+
+# Не все выборки одинаково полезные!
+
+### Репрезентативная выборка = хорошая выборка, которая отражает свойства ГС
+
+.center[&lt;img src="./img/RepSample.svg" style="width: 60%"&gt;]
+
+---
+
+background-image: url(./img/GarbageInOut.svg)
+background-size: cover
+class: center
+
+---
+
+# Хотим измерить среднюю скорость бега 
+
+.pull-left[
+### Какие из этих выборок репрезентативные?
+### &gt; друзья, одногруппники, коллеги 
+### &gt; откликнувшиеся на объявление в вк
+### &gt; случайные люди из телефонной книги
+]
+.pull-right[
+&lt;img src="./img/RepSample.svg" style="width: 120%"&gt;
+]
+
+---
+
+# Как получать данные?
+
+### Планирование эксперимента - (важная!) наука о том, как правильно получать выборки
+
+
+## Выборки бывают
+###     &gt; Зависимые (оценки школьников по алгебре и русскому)
+###     &gt; Независимые (прододжительность жизни здоровых и больных мышей)
+
+--
+
+## Алгоритмы построения выборок бывают:
+###     &gt; Детерменированные - purposive, convinience, snow-ball, quota sampling
+###     &gt; Вероятностные - simple random, stratified random, cluster, multi-stage sampling
+
+---
+
+# Вероятностные выборки. Где какая?
+.top[.pull-left[
+![](./img/Sampling1.png)
+]
+.pull-right[
+![](./img/Cluster2.png)
+]]
+
+---
+class: center, middle
+
+#Даже самый хитрый вероятностный  алгоритм не 
+#гарантирует, что выборка будет репрезентативна!
+
+---
+
+.pull-left[
+# Загадка: выборы в США
+
+### В 1936 журнал Literary Digest  разослали 10млн пробных бюллетеней своим подписчикам и случайным людям из телефонного справочника. Оказалось, что
+
+### &gt; 57% за республиканца Лэндона
+### &gt; 40% за демократа Рузвельта
+
+### Однако победил Рузвельт. 
+
+### Где ошибка?
+]
+
+.pull-right[
+.middle[![](./img/digest.jpg)]
+]
+
+---
+
+.pull-left[
+# Разгадка: выборы в США
+
+### Выборка была не репрезентативна!
+
+### &gt; Большинство подписчиков были республиканцы
+
+### &gt; "Рандомные" люди не были рандомными, так как телефонами обладали средний и высший класс (опять республиканцы)
+]
+
+.pull-right[
+.middle[![](./img/digest.jpg)]
+]
+
+---
+
+class: center, middle
+
+# Ок, я выбрал алгоритм семплирования
+# Сколько мне нужно данных для исследования?
+
+
+---
+
+.pull-left[
+# Сколько нужно данных?
+### &gt; чем больше, тем лучше 
+### &gt; 30
+### &gt; n = $available / $sample
+]
+.pull-right[
+![](./img/MoarData.png)
+]
+
+&lt;br&gt;
+
+### Иногда необходимый объем выборки можно оценить из мощности теста
+### Чем меньше объем выборки, тем менее статистически надежными будут результаты
+### Однако с очень большими выборками тоже могут возникнуть проблемы
+
+---
+
+background-image: url(./img/Batch.png)
+background-size: contain
+
+# Не забывайте про  batch-effect!
+
+---
+
+# Take-home message
+
+### &gt; хорошая выборка должна отражать свойста ГС
+### &gt; сделать репрезентативную выборку сложно (но нужно стараться)
+### &gt; качество данных влияет на качество дальнейших исследований
+### &gt; размер выборки важен
+### &gt; batch-effect
+
+
+---
+
+class: center, middle
+
+# Ок, у меня есть данные, что дальше?
+# Анализировать их!
+
+---
+# Виды статистического анализа 
+
+### &gt; Описательная статистика
+### &gt; Поиск различий (проверка гипотез) в данных (одна или несколько групп)
+### &gt; Поиск зависимостей
+### &gt; Поиск "смысла" в данных (кластеризация)
+### &gt; ...
+
+---
+
+# Где можно анализировать данных? Например, в R
+
+.center[![](./img/R.jpeg)]
+
+&lt;br&gt;
+### Замечание 1: статистический анализ можно делать в Excel или Google Spreadsheets
+### Замечание 2: можно и в Python
+### Замечание 3: можно на любом языке, но в R удобнее 
+
+---
+
+.pull-left[
+# За что мы любим R
+
+### &gt; все реализовано за нас
+### &gt; свободный код
+]
+
+--
+
+.pull-right[
+# За что мы не любим R
+
+### &gt; немаленький порог вхождения 
+### &gt; относительная медлительность*
+
+&lt;br&gt;&lt;br&gt;
+
+###*особенно, если плохо написать код
+]
+
+
+
+---
+
+# Как попросить помощь у R?
+
+
+```r
+?histogram
+```
+
+```
+## No documentation for 'histogram' in specified packages and libraries:
+## you could try '??histogram'
+```
+
+```r
+??histogram
+?hist
+```
+
+### Также удобно нажимать на tab, чтобы R-studia подсказывала название и аргументы функций
+
+---
+
+# Вспомним основные статистические концепты
+
+.center[&lt;img src="./img/World.svg" style="width: 90%"&gt;]
+
+---
+
+# Среднее и медиана
+
+
+```r
+set.seed(42)
+v &lt;- sample(1:100, 10)
+print(v)
+```
+
+```
+##  [1] 92 93 29 81 62 50 70 13 61 65
+```
+
+```r
+mean(v)
+```
+
+```
+## [1] 61.6
+```
+
+```r
+median(v)
+```
+
+```
+## [1] 63.5
+```
+
+### Упражнение: Добавьте в вектор число 1000. Как изменится среднее и медиана?
+
+---
+# Упражнение: решение
+
+
+```r
+v &lt;- c(v, 1000)
+
+mean(v)
+```
+
+```
+## [1] 146.9091
+```
+
+```r
+median(v)
+```
+
+```
+## [1] 65
+```
+
+### &gt; Медиана устойчива к выбросам (аутлаерам)
+### &gt; Среднее чувствительно к выбросам
+
+---
+
+# Дисперсия и стандартное отклонение (std)
+
+.pull-left[
+### Дисперсия = среднеквадр-е отклонение от среднего
+### Cтандартное отклонение = корень из дисперсии
+.center[&lt;img src="./img/VarStd.png" style="width: 100%"&gt;]
+]
+.pull-right[
+![](./img/DifVar.svg)
+]
+
+
+---
+
+# Среднее и дисперсия не полностью описывают данные
+
+.center[&lt;img src="./img/Dino.gif" style="width: 100%"&gt;]
+
+---
+
+# Ящик с усами (boxplot)
+
+.center[&lt;img src="./img/BoxDefinition.png" style="width: 110%"&gt;]
+
+---
+
+# Ящик с усами 
+
+.center[&lt;img src="./img/Box1.jpg" style="width: 80%"&gt;]
+
+### Вы видите какие-то проблемы?
+
+---
+
+# Ящик с усами коварный!
+
+.center[&lt;img src="./img/Boxplots.gif" style="width: 110%"&gt;]
+
+---
+
+# Ящик с усами коварный! Можно смотреть на Violinplot
+
+.center[&lt;img src="./img/BoxViolin.gif" style="width: 110%"&gt;]
+
+---
+
+# Ящик с усами можно улучшить точечками 
+
+.center[&lt;img src="./img/Box2.jpg" style="width: 80%"&gt;]
+
+---
+
+class: top
+
+.center[&lt;img src="./img/NormalD.png" style="width: 85%"&gt;]
+
+.pull-left[
+### &gt; 90% всех наблюдений: m +- s
+### &gt; 95% всех наблюдений: m +- 1.96s
+]
+.pull-right[
+### &gt; 99.73% наблюдений: m +- 3s
+### (правило трех сигм)
+]
+
+---
+
+# Центральная Предельная Теорема (ЦПТ)
+
+### Неправильные формулировки:
+### &gt; В природе все распределено нормально
+### &gt; Если долго семплировать выборки из какого-то распределения, то получится нормальное распредение
+
+---
+# Центральная Предельная Теорема
+
+### &gt; ЦПТ - это утверждение про распределение средних!
+### (Среднее распределено примерно как N(mu, sigma^2/n))
+
+https://gallery.shinyapps.io/CLT_mean/
+
+### &gt; ЦПТ работает если n &gt; 30
+
+### &gt; ЦПТ лежит в основе доверительных интервалов
+
+---
+
+.pull-left[
+
+```r
+library(ggplot2)
+
+# число повторений
+r &lt;- 1000
+
+# объем одной выборки
+n &lt;- 10
+
+x &lt;- replicate(r, runif(n))
+mean_x &lt;- apply(x, 2, mean)
+mean_x &lt;- data.frame(sample_mean = mean_x)
+
+ggplot(mean_x) + 
+  geom_histogram(aes(x = sample_mean)) +
+  xlab("Sample mean") +
+  theme_bw()
+```
+
+```
+## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+```
+
+### Упр: а что если увеличить n?
+]
+
+.pull-right[
+
+```
+## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+```
+
+&lt;img src="slides_files/figure-html/unnamed-chunk-4-1.png" width="504" /&gt;
+]
+
+
+---
+
+# Проверка гипотез
+
+## &gt; Гипотеза - утверждение про генеральную совокупность 
+##(не про выборку!!!)
+
+## &gt; Нулевая гипотеза - различий нет
+
+## &gt; Альтернативная гипотеза - различия есть
+
+---
+
+#Тесты всегда ошибаются!
+
+.center[&lt;img src="./img/Errors.jpg" style="width: 100%"&gt;]
+
+---
+
+# Уровень значимости
+
+## Должны построить тест так, чтобы
+
+## 0.05 = P(случайно отклонить нулевую гипотезу) 
+## 0.05 = P(случайно сделать открытие, когда ничего нет)
+## 0.05 = P(ошибки I рода)
+
+&lt;br&gt;
+
+## Почему 0.05? Так сложилось
+
+---
+
+# Нельзя говорить "принимаем альтернативу"!!!
+
+## Посчитать вероятность ошибки второго рода сложно
+## Никто не гарантирует, что она маленькая
+
+---
+
+class: center, middle
+
+# Задача
+
+## Подкинули монетку 10 раз
+## Как понять, что монетка правильная?
+
+---
+
+
+```r
+n &lt;- 10
+r &lt;- 1000
+x &lt;- replicate(r, sample(0:1, n, replace = T))
+TailsDistr &lt;- apply(x, 2, sum)
+```
+
+---
+
+
+```r
+ggplot(data.frame(n_tails = TailsDistr)) + 
+  geom_histogram(aes(x = n_tails)) +
+  xlab("Tails distribution") +
+  theme_bw()
+```
+
+```
+## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+```
+
+![](slides_files/figure-html/unnamed-chunk-6-1.png)&lt;!-- --&gt;
+
+
+---
+
+# P-value
+
+## P-value = вероятность получить такое же или более экстремальное значение статистики при условии, что нулевая гипотеза верна
+
+.center[&lt;img src="./img/Pval.png" style="width: 60%"&gt;]
+
+---
+
+# Одновыборочный t-test в R
+
+
+```r
+?t.test
+```
+
+---
+
+# Одновыборочный t-test в R
+
+
+```r
+x &lt;- rnorm(n = 100, mean = 0, sd = 1)
+
+t.test(x, mu = 0)
+```
+
+```
+## 
+## 	One Sample t-test
+## 
+## data:  x
+## t = 1.7859, df = 99, p-value = 0.07718
+## alternative hypothesis: true mean is not equal to 0
+## 95 percent confidence interval:
+##  -0.01981501  0.37665023
+## sample estimates:
+## mean of x 
+## 0.1784176
+```
+
+---
+
+# Одновыборочный t-test в R
+
+
+```r
+t.test(x, mu = -1000)
+```
+
+```
+## 
+## 	One Sample t-test
+## 
+## data:  x
+## t = 10011, df = 99, p-value &lt; 2.2e-16
+## alternative hypothesis: true mean is not equal to -1000
+## 95 percent confidence interval:
+##  -0.01981501  0.37665023
+## sample estimates:
+## mean of x 
+## 0.1784176
+```
+
+---
+
+# t-test требует
+
+### &gt; Независимость наблюдений
+### &gt; При маленьком объеме выборки велика ошибка второго рода (маленькая мощность)
+### &gt; Если маленький объем выборки, то распределение признака должно быть нормальным
+
+
+---
+
+
+# Двувыборочный t-test в R
+
+
+```r
+x &lt;- rnorm(n = 100, mean = 0, sd = 1)
+y &lt;- rnorm(n = 80, mean = 10, sd = 1)
+
+t.test(x, y)
+```
+
+```
+## 
+## 	Welch Two Sample t-test
+## 
+## data:  x and y
+## t = -62.575, df = 172.75, p-value &lt; 2.2e-16
+## alternative hypothesis: true difference in means is not equal to 0
+## 95 percent confidence interval:
+##  -10.384671  -9.749579
+## sample estimates:
+##    mean of x    mean of y 
+## -0.006113628 10.061011172
+```
+
+---
+# P-value Quiz
+
+### &gt; Если в исследовании p = 0.001, то вероятность того, что верна нулевая гипотеза (новый препарат не влияет на скорость выздоровления) также равняется 0.001.
+### &gt; Если в исследовании p = 0.9, это означает, что верна нулевая гипотеза, и новый препарат не влияет на скорость выздоровления
+### &gt; Чем меньше p-value, тем сильнее получаемые различия
+### &gt; Вероятность случайно получить такие различия, при условии что на самом деле верна нулевая гипотеза, равняется 0.005.
+
+---
+
+# Take-home message
+
+### &gt; ЦПТ работает для больших выборок (&gt; 30)
+### &gt; статистические тесты должны ошибаться
+### &gt; нельзя говорить "принимаем альтернативную гипотезу"
+### &gt; p-value не магическое число
+
+
+---
+
+# Как мне изучать статистику самостоятельно?
+
+## &gt; Что смотреть?
+
+###Рекомендую начать с курсов Анатолия Карпова на Stepik :)
+
+## &gt; Что читать?
+
+### Книжка по медгенетике (TBD)
+### https://www.nature.com/collections/qghhqm
+
+## &gt; Как практиковаться?
+
+### Анализировать датасеты на Kaggle, читать обсуждения
+
+
+---
+
+class: center, middle
+
+# Спасибо за внимание! Теперь вы крутые статистики
+
+---
+
+class: center, middle
+
+# Не все так просто
+# Многие биологические статьи не воспроизводятся из-за плохого статистического анализа
+
+---
+
+# История 1: Симпсон 
+
+.center[&lt;img src="./img/Simpson.png" style="width: 40%"&gt;]
+
+---
+# Загружаем данные
+
+
+```r
+df &lt;-read.table("Neuroticism.csv")
+head(df)
+```
+
+```
+##     Salary Neuroticism Education Sex
+## 1 53719.77    2.738387    Medium   M
+## 2 79991.24    3.257568      High   M
+## 3 47299.56    4.128697    Medium   M
+## 4 84621.72    4.746971      High   F
+## 5 97821.90    2.817542      High   F
+## 6 66072.76    2.317324       Low   F
+```
+
+```r
+summary(df)
+```
+
+```
+##      Salary        Neuroticism     Education   Sex    
+##  Min.   : 10248   Min.   :0.000   High  :248   F:507  
+##  1st Qu.: 49142   1st Qu.:2.551   Low   :247   M:493  
+##  Median : 61097   Median :3.255   Medium:505          
+##  Mean   : 60886   Mean   :3.263                       
+##  3rd Qu.: 73590   3rd Qu.:3.988                       
+##  Max.   :110248   Max.   :7.000
+```
+
+---
+
+
+```r
+ggplot(data=df, aes(Neuroticism, Salary)) +
+  geom_point() + 
+  geom_smooth(method = 'lm') + 
+  theme_bw()
+```
+
+&lt;img src="slides_files/figure-html/unnamed-chunk-12-1.png" width="504" /&gt;
+
+
+---
+
+
+```r
+ggplot(data=df, aes(Neuroticism, Salary)) +
+  geom_point(aes(col = Education)) + 
+  theme_bw()
+```
+
+&lt;img src="slides_files/figure-html/unnamed-chunk-13-1.png" width="504" /&gt;
+
+
+---
+
+
+```r
+ggplot(data=df, aes(Neuroticism, Salary)) +
+  geom_point(aes(col = Education)) + 
+  geom_smooth(aes(col = Education), method = 'lm') +
+  theme_bw()
+```
+
+&lt;img src="slides_files/figure-html/unnamed-chunk-14-1.png" width="504" /&gt;
+
+---
+
+
+```r
+ggplot(data=df, aes(Neuroticism, Salary)) +
+  geom_point(aes(col = Sex)) + 
+  theme_bw()
+```
+
+&lt;img src="slides_files/figure-html/unnamed-chunk-15-1.png" width="504" /&gt;
+
+---
+
+# Парадокс Симпсона 
+
+.center[&lt;img src="./img/SimpsonDef.png" style="width: 50%"&gt;]
+
+### Обязательно смотрите на данные и раскрашивайте их по категориальным переменным!
+
+---
+
+# История 2: про мракобесие
+.center[&lt;img src="./img/Salmon.jpg" style="width: 80%"&gt;]
+
+---
+
+# GWAS и автомобильные аварии
+
+## Попробуем найти SNP, который предсказывает твои шансы умереть в автокатастрофе 
+
+---
+# Множественное тестирование
+
+.center[&lt;img src="./img/Mult.png" style="width: 50%"&gt;]
+
+---
+
+# ANOVA
+
+## &gt; Тестируем три лекарства, хотим найти самое эффективное
+## &gt; Что если хотим сравнить каждое среднее с каждым?
+
+---
+
+# Take-home message
+
+## &gt; перед любым статистическом анализом обязательно смотрим на данные (EDA)
+## &gt; в данных могут быть неоднородности и аутлаеры, которые могут изменить результат анализа
+## &gt; поправка на множественное тестирование!!!
+## &gt; если исследуете несколько групп, то используйте специальные тесты (ANOVA) 
+
+---
+
+class: center, middle
+
+# Q&amp;A
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false,
+"ratio": "16:9"
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();</script>
+
+<script>
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
